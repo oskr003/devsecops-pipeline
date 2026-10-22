@@ -1,0 +1,6 @@
+.DS_Store
+*.docx
+tarea\ iván/
+venv/
+__pycache__/
+*.pyc

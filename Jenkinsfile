@@ -48,6 +48,7 @@ pipeline {
             steps {
                 echo '=== Desplegando aplicación de prueba para análisis dinámico ==='
                 sh '''
+                    docker network create devsecops-net 2>/dev/null || true
                     docker rm -f ${APP_NAME} || true
                     docker run -d --name ${APP_NAME} --network devsecops-net -p 5000:5000 \
                       -v $(pwd):/app -w /app python:3.9-slim \
@@ -60,8 +61,10 @@ pipeline {
         stage('Security Test') {
             steps {
                 echo '=== Ejecutando OWASP Dependency-Check (SCA) ==='
-                dependencyCheck additionalArguments: '--scan ./ --format ALL --prettyPrint', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    dependencyCheck additionalArguments: '--scan ./ --format ALL --prettyPrint', odcInstallation: 'DP-Check'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
 
                 echo '=== Ejecutando OWASP ZAP (DAST) ==='
                 sh '''

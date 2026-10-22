@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        dependencyCheck 'DP-Check'
-        sonarscanner 'SonarScanner'
-    }
-
     environment {
         SCANNER_HOME = tool 'SonarScanner'
         APP_NAME = 'devsecops-flask-app'
@@ -39,7 +34,7 @@ pipeline {
                 echo '=== Ejecutando análisis estático SAST con SonarQube ==='
                 withSonarQubeEnv('SonarQube') {
                     sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        \${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=devsecops-flask-app \
                         -Dsonar.projectName="DevSecOps Flask App" \
                         -Dsonar.sources=. \
